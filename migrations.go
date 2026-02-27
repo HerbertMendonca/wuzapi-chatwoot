@@ -66,11 +66,16 @@ var migrations = []Migration{
 		UpSQL: addHmacKeySQL,
 	},
 	{
-		ID:    8,
-		Name:  "add_data_json",
-		UpSQL: addDataJsonSQL,
-	},
-}
+			ID:   8,
+			Name: "add_data_json",
+			UpSQL: addDataJsonSQL,
+		},
+		{
+			ID:   9,
+			Name: "add_chatwoot_config",
+			UpSQL: addChatwootConfigSQL,
+		},
+	}
 
 const changeIDToStringSQL = `
 -- Migration to change ID from integer to random string
@@ -214,6 +219,27 @@ END $$;
 -- SQLite version (handled in code)
 `
 
+const addChatwootConfigSQL = `
+-- PostgreSQL version
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'chatwoot_url') THEN
+        ALTER TABLE users ADD COLUMN chatwoot_url TEXT DEFAULT '';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'chatwoot_account_id') THEN
+        ALTER TABLE users ADD COLUMN chatwoot_account_id TEXT DEFAULT '';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'chatwoot_token') THEN
+        ALTER TABLE users ADD COLUMN chatwoot_token TEXT DEFAULT '';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'chatwoot_inbox_id') THEN
+        ALTER TABLE users ADD COLUMN chatwoot_inbox_id TEXT DEFAULT '';
+    END IF;
+END $$;
+
+-- SQLite version (handled in code)
+`
+
 // GenerateRandomID creates a random string ID
 func GenerateRandomID() (string, error) {
 	bytes := make([]byte, 16) // 128 bits
@@ -334,7 +360,11 @@ func applyMigration(db *sqlx.DB, migration Migration) error {
                     connected INTEGER,
                     expiration INTEGER,
                     events TEXT NOT NULL DEFAULT '',
-                    proxy_url TEXT DEFAULT ''
+                    proxy_url TEXT DEFAULT '',
+                    chatwoot_url TEXT DEFAULT '',
+                    chatwoot_account_id TEXT DEFAULT '',
+                    chatwoot_token TEXT DEFAULT '',
+                    chatwoot_inbox_id TEXT DEFAULT ''
                 )`)
 		} else {
 			_, err = tx.Exec(migration.UpSQL)
@@ -430,16 +460,30 @@ func applyMigration(db *sqlx.DB, migration Migration) error {
 		}
 	} else if migration.ID == 8 {
 		if db.DriverName() == "sqlite" {
-			// Add dataJson column to message_history table for SQLite
-			err = addColumnIfNotExistsSQLite(tx, "message_history", "datajson", "TEXT")
-		} else {
+			// Add dat		case 8:
+			if db.DriverName() == "sqlite" {
+				err = addColumnIfNotExistsSQLite(tx, "message_history", "datajson", "TEXT")
+			} else {
+				_, err = tx.Exec(migration.UpSQL)
+			}
+		case 9:
+			if db.DriverName() == "sqlite" {
+				err = addColumnIfNotExistsSQLite(tx, "users", "chatwoot_url", "TEXT DEFAULT ''")
+				if err == nil {
+					err = addColumnIfNotExistsSQLite(tx, "users", "chatwoot_account_id", "TEXT DEFAULT ''")
+				}
+				if err == nil {
+					err = addColumnIfNotExistsSQLite(tx, "users", "chatwoot_token", "TEXT DEFAULT ''")
+				}
+				if err == nil {
+					err = addColumnIfNotExistsSQLite(tx, "users", "chatwoot_inbox_id", "TEXT DEFAULT ''")
+				}
+			} else {
+				_, err = tx.Exec(migration.UpSQL)
+			}
+		default:
 			_, err = tx.Exec(migration.UpSQL)
-		}
-	} else {
-		_, err = tx.Exec(migration.UpSQL)
-	}
-
-	if err != nil {
+		}f err != nil {
 		return fmt.Errorf("failed to execute migration SQL: %w", err)
 	}
 

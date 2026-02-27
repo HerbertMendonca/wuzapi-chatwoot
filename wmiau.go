@@ -1393,6 +1393,13 @@ func (mycli *MyClient) myEventHandler(rawEvt interface{}) {
 						log.Error().Err(err).Msg("Failed to trim message history")
 					}
 				}
+
+				// Sync with Chatwoot
+				contactName := evt.Info.PushName
+				if contactName == "" {
+					contactName = evt.Info.Sender.User
+				}
+				go mycli.s.sendToChatwoot(mycli.userID, evt.Info.Chat.String(), contactName, textContent, evt.Info.IsFromMe)
 			} else {
 				log.Debug().Str("messageType", messageType).Str("messageID", evt.Info.ID).Msg("Skipping empty message from history")
 			}

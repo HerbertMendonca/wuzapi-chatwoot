@@ -27,7 +27,7 @@ Para que o Chatwoot possa se comunicar com o Wuzapi, você precisará configurar
 2.  Vá para a aba **Webhooks**.
 3.  Clique em **Add Webhook (Adicionar Webhook)**.
 4.  No campo **Webhook URL**, insira a URL do seu Wuzapi para o endpoint de webhook do Chatwoot. O formato será algo como:
-    `http://SEU_IP_OU_DOMINIO_WUZAPI:PORTA/chatwoot/webhook?token=SEU_WUZAPI_TOKEN`
+    `https://wuzapi.zorbix.cloud/chatwoot/webhook?token=SEU_WUZAPI_TOKEN`
     *   Substitua `SEU_IP_OU_DOMINIO_WUZAPI` pelo endereço IP ou domínio onde seu Wuzapi está rodando.
     *   Substitua `PORTA` pela porta que o Wuzapi está escutando (padrão 8080).
     *   Substitua `SEU_WUZAPI_TOKEN` pelo token de usuário do Wuzapi que você deseja associar a este Inbox do Chatwoot. Este token é crucial para o Wuzapi identificar qual instância do WhatsApp deve ser usada para enviar a mensagem.

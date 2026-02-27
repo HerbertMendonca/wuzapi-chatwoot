@@ -1,42 +1,28 @@
 version: "3.7"
 services:
   wuzapi:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    volumes:
-      - wuzapi_dbdata:/app/dbdata
-      - wuzapi_files:/app/files
-    dns:
-      - 8.8.8.8
-      - 1.1.1.1
+    image: wuzapi-chatwoot:latest
+    build: .
     networks:
       - Nex1Net
     environment:
       - WUZAPI_ADMIN_TOKEN=${WUZAPI_ADMIN_TOKEN}
       - SECRET_KEY=${SECRET_KEY}
-      - WUZAPI_GLOBAL_ENCRYPTION_KEY=${WUZAPI_GLOBAL_ENCRYPTION_KEY:-}
-      - WUZAPI_GLOBAL_HMAC_KEY=${WUZAPI_GLOBAL_HMAC_KEY:-}
-      - WUZAPI_GLOBAL_WEBHOOK=${WUZAPI_GLOBAL_WEBHOOK:-}
-      - DB_HOST=${DB_HOST:-postgres}
-      - DB_USER=${DB_USER:-postgres}
-      - DB_PASSWORD=${DB_PASSWORD:-d8eb27b8623851c0784b7b85ccfc6426}
-      - DB_NAME=${DB_NAME:-wuzapi}
-      - DB_PORT=${DB_PORT:-5432}
-      - DB_DRIVER=${DB_DRIVER:-postgres}
-      - TZ=${TZ:-America/Sao_Paulo}
-      - WEBHOOK_FORMAT=${WEBHOOK_FORMAT:-json}
-      - SESSION_DEVICE_NAME=${SESSION_DEVICE_NAME:-WuzAPI}
-      # Chatwoot Integration Environment Variables
-      - CHATWOOT_URL=${CHATWOOT_URL:-}
-      - CHATWOOT_ACCOUNT_ID=${CHATWOOT_ACCOUNT_ID:-}
-      - CHATWOOT_ACCESS_TOKEN=${CHATWOOT_ACCESS_TOKEN:-}
-      - CHATWOOT_INBOX_ID=${CHATWOOT_INBOX_ID:-}
-      # RabbitMQ configuration Optional (assuming RabbitMQ is external or in another stack)
-      - RABBITMQ_URL=${RABBITMQ_URL:-amqp://wuzapi:wuzapi@rabbitmq:5672/}
-      - RABBITMQ_QUEUE=${RABBITMQ_QUEUE:-whatsapp_events}
+      - DB_HOST=${DB_HOST}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=${DB_PORT}
+      - DB_DRIVER=${DB_DRIVER}
+      - TZ=${TZ}
+      - WEBHOOK_FORMAT=${WEBHOOK_FORMAT}
+      - CHATWOOT_URL=${CHATWOOT_URL}
+      - CHATWOOT_ACCOUNT_ID=${CHATWOOT_ACCOUNT_ID}
+      - CHATWOOT_ACCESS_TOKEN=${CHATWOOT_ACCESS_TOKEN}
+      - CHATWOOT_INBOX_ID=${CHATWOOT_INBOX_ID}
+    volumes:
+      - wuzapi_dbdata:/app/dbdata
+      - wuzapi_files:/app/files
     deploy:
       mode: replicated
       replicas: 1
